@@ -53,7 +53,7 @@ pillow==8.4.0
 platformdirs==4.2.1
 postgrest==0.16.8
 prompt-toolkit==3.0.43
-protobuf==3.19.0
+protobuf<3.20
 psutil==5.9.8
 pure-eval==0.2.2
 pyarrow==6.0.1
