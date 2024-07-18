@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-import boto3
 import io
 from streamlit_option_menu import option_menu
 import Job  # Import the Job12 module
