@@ -6,8 +6,6 @@ import io
 import tempfile
 from io import BytesIO
 from fpdf import FPDF, HTMLMixin
-from PIL import Image 
-import boto3
 import pandas as pd
 import streamlit as st
 import base64
@@ -345,13 +343,7 @@ def add_detail(self, detail, separator="\n"):
 # Load the Excel file into a pandas DataFrame
 
 
-#s3=pd.read_excel(r"C:\Users\User\Desktop\Career-Exploration-main\data_files\Job_S3.xlsx")
 
-
-
-import requests
-import pandas as pd
-from io import BytesIO
 
 # URL pointing to the CSV file
 
@@ -368,8 +360,6 @@ except requests.exceptions.RequestException as e:
 except Exception as e:
     print("An error occurred while reading the CSV file:", e)
 
-#dp = pd.read_excel(r"C:\Users\User\Desktop\Career-Exploration-main\data_files\Job_S3.xlsx")
-#dp = load_job_details()
 
 dp.head()
 
