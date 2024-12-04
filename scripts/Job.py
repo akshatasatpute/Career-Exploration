@@ -363,7 +363,7 @@ except Exception as e:
     print("An error occurred while reading the CSV file:", e)
 
 
-dp.head()
+#dp.head()
 
 @st.cache_resource
 def load_job_details(selected_field):
