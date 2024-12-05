@@ -16,7 +16,7 @@ import pandas as pd
 from io import BytesIO
 
 # URL pointing to the CSV file
-file_url = 'https://bvvaailuzioczysisnoc.supabase.co/storage/v1/object/sign/Career%20Exploration/STEM_Colleges_in_India_Dataset(Sheet1).csv?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJDYXJlZXIgRXhwbG9yYXRpb24vU1RFTV9Db2xsZWdlc19pbl9JbmRpYV9EYXRhc2V0KFNoZWV0MSkuY3N2IiwiaWF0IjoxNzIxMDIyMDY5LCJleHAiOjE4MDczMzU2Njl9.IZ_FrbbMLq7UfGkWlSBvAmxJUxiAd3Y52Lql4Wx0g9c&t=2024-07-15T05%3A41%3A07.517Z'
+file_url = 'https://twetkfnfqdtsozephdse.supabase.co/storage/v1/object/sign/stemcheck/STEM%20Colleges%20in%20India%20Dataset.xlsx?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdGVtY2hlY2svU1RFTSBDb2xsZWdlcyBpbiBJbmRpYSBEYXRhc2V0Lnhsc3giLCJpYXQiOjE3MzMzNzU0NTYsImV4cCI6MTczNTk2NzQ1Nn0.wsf_IVhS7PpfvkLg15RvmYKo8P3sPKZPx56UWB0Fm-E&t=2024-12-05T05%3A10%3A55.478Z'
 # Make a GET request to the URL to retrieve the CSV file
 try:
     response = requests.get(file_url)
