@@ -1,32 +1,31 @@
+import pandas as pd
 import streamlit as st
+import io
+#from streamlit_option_menu import option_menu
+import Job  # Import the Job12 module
+from PIL import Image
+import base64
+from io import BytesIO
+
 import requests
 import pandas as pd
 from io import BytesIO
-from supabase import create_client, Client
 
-# Initialize the Supabase client (Assuming you've set up your credentials correctly)
-url = "https://twetkfnfqdtsozephdse.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3ZXRrZm5mcWR0c296ZXBoZHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjE5Njk0MzcsImV4cCI6MjAzNzU0NTQzN30.D76H5RoTel0M7Wj6PTRSAXxxYGic7K25BSaeQDZqIN0"
-supabase: Client = create_client(url, key)
+# URL pointing to the CSV file
+file_url = 'https://twetkfnfqdtsozephdse.supabase.co/storage/v1/object/sign/stemcheck/STEM%20Colleges%20in%20India%20Dataset.xlsx?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdGVtY2hlY2svU1RFTSBDb2xsZWdlcyBpbiBJbmRpYSBEYXRhc2V0Lnhsc3giLCJpYXQiOjE3MzMzNzU0NTYsImV4cCI6MTczNTk2NzQ1Nn0.wsf_IVhS7PpfvkLg15RvmYKo8P3sPKZPx56UWB0Fm-E&t=2024-12-05T05%3A10%3A55.478Z'
+# Make a GET request to the URL to retrieve the CSV file
+try:
+    response = requests.get(file_url)
+    response.raise_for_status()  # Raise an error for bad status codes
 
-# Function to fetch CSV from Supabase storage
-def fetch_csv_from_supabase():
-    try:
-        # Get the file from Supabase (replace 'your-bucket-name' and 'your-file-name.csv')
-        file_url = 'https://twetkfnfqdtsozephdse.supabase.co/storage/v1/object/sign/stemcheck/STEM%20Colleges%20in%20India%20Dataset.xlsx?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJzdGVtY2hlY2svU1RFTSBDb2xsZWdlcyBpbiBJbmRpYSBEYXRhc2V0Lnhsc3giLCJpYXQiOjE3MzMzNzU0NTYsImV4cCI6MTczNTk2NzQ1Nn0.wsf_IVhS7PpfvkLg15RvmYKo8P3sPKZPx56UWB0Fm-E&t=2024-12-05T05%3A10%3A55.478Z'
+    # Read the content of the response as a pandas DataFrame, specifying the appropriate encoding
+    df = pd.read_csv(BytesIO(response.content), encoding='latin1')  # You can try 'latin1' encoding as an alternative
+    # Proceed with processing the data in the dataframe 'df'
+except requests.exceptions.RequestException as e:
+    print("An error occurred while accessing the CSV file:", e)
+except Exception as e:
+    print("An error occurred while reading the CSV file:", e)
 
-        if file_url:
-            # If the file is successfully fetched, read it into a DataFrame
-            df = pd.read_csv(BytesIO(file_url))
-            return df
-        else:
-            raise Exception("File not found or failed to download.")
-    except Exception as e:
-        st.error(f"Error fetching the CSV file: {e}")
-        return None
-
-# Fetch the CSV file
-df = fetch_csv_from_supabase()
 
 # Define the Streamlit interface
 def main():
@@ -42,42 +41,49 @@ def main():
     # Check if 'student_name' is empty and display a warning
     if st.session_state.student_name == '':
         st.warning('*Please enter a valid name.*')
+    #degree_order = ['Bachelors', 'Integrated Bachelors + Masters', 'Masters', 'Integrated Masters + PhD', 'PhD']
+    #degree_order = ['Bachelors', 'Masters', 'Integrated Masters + PhD', 'PhD']
 
-    if df is not None:
-        # Load qualified degrees from the DataFrame
-        st.session_state.qualified_degrees = df['Degree'].unique() 
-        st.session_state.selected_degree = st.selectbox('**Select the Degree you want to pursue next (Your Aspiration Degree)**', st.session_state.qualified_degrees)
+    st.session_state.qualified_degrees = df['Degree'].unique() 
+    st.session_state.selected_degree = st.selectbox('**Select the Degree you want to pursue next (Your Aspiration Degree)**', st.session_state.qualified_degrees)
 
-        # Filter Fields based on selected Degree
-        st.session_state.filtered_fields = sorted([i for i in df[df['Degree'] == st.session_state.selected_degree]['Field'].unique() if isinstance(i, str)])
-        st.session_state.selected_field = st.selectbox('**Select Area of Interest**', st.session_state.filtered_fields)
+    st.session_state.filtered_fields = sorted([i for i in df[df['Degree'] == st.session_state.selected_degree]['Field'].unique() if isinstance(i, str)])
+    st.session_state.selected_field = st.selectbox('**Select Area of Interest**', st.session_state.filtered_fields)
 
-        # Filter Subfields based on selected Field
-        st.session_state.filtered_subfields = sorted([i for i in df[(df['Degree'] == st.session_state.selected_degree) & (df['Field'] == st.session_state.selected_field)]['SubField'].unique() if isinstance(i, str)])
-        st.session_state.selected_subfield = st.selectbox('**Select Specialization between this Field**', st.session_state.filtered_subfields)
+    st.session_state.filtered_subfields = sorted([i for i in df[(df['Degree'] == st.session_state.selected_degree) & (df['Field'] == st.session_state.selected_field)]['SubField'].unique() if isinstance(i, str)])
+    st.session_state.selected_subfield = st.selectbox('**Select Specilization between this Field**', st.session_state.filtered_subfields)
 
-        # Filter Colleges based on selected Subfield
-        st.session_state.filtered_colleges = sorted([i for i in df[(df['Degree'] == st.session_state.selected_degree) & (df['Field'] == st.session_state.selected_field) & (df['SubField'] == st.session_state.selected_subfield)]['College_Name'].unique() if isinstance(i, str)])
-        st.session_state.selected_college = st.selectbox('**Select college**', st.session_state.filtered_colleges)
+    st.session_state.filtered_colleges = sorted([i for i in df[(df['Degree'] == st.session_state.selected_degree) & (df['Field'] == st.session_state.selected_field) & (df['SubField'] == st.session_state.selected_subfield)]['College_Name'].unique() if isinstance(i, str)])
+    st.session_state.selected_college = st.selectbox('**Select college**', st.session_state.filtered_colleges)
 
-        if st.session_state.selected_college:
-            st.session_state.college_details = df[(df['Degree'] == st.session_state.selected_degree) &
-                                (df['Field'] == st.session_state.selected_field) &
-                                (df['SubField'] == st.session_state.selected_subfield) &
-                                (df['College_Name'] == st.session_state.selected_college)]
+    if st.session_state.selected_college:
+        st.session_state.college_details = df[(df['Degree'] == st.session_state.selected_degree) &
+                              (df['Field'] == st.session_state.selected_field) &
+                              (df['SubField'] == st.session_state.selected_subfield) &
+                              (df['College_Name'] == st.session_state.selected_college)]
 
-            st.header('**College Details**')
-            st.markdown(f"**College:** {st.session_state.selected_college}")
-            st.markdown(f"**Duration:** {st.session_state.college_details['Duration'].values[0]}")
-            st.markdown(f"**College Fee:** {st.session_state.college_details['Fees'].values[0]}")
-            st.markdown(f"**Minimum Eligibility:** {st.session_state.college_details['Eligiblity Criteria'].values[0]}")
-            st.markdown(f"**Selection Criteria:** {st.session_state.college_details['Selection Process'].values[0]}")
-            st.markdown(f"**Exam to Qualify:** {st.session_state.college_details['Exam'].values[0]}")
-            st.markdown(f"**Available Seats:** {st.session_state.college_details['Seats'].values[0]}")
-            st.markdown(f"**Mode of exam:** {st.session_state.college_details['Mode'].values[0]}")
-            st.warning(f"*A complete list of all relevant scholarships will be provided when you download the report (pdf) on the next page.*")
+        st.header('**College Details**')
+        st.markdown(f"**College:** {st.session_state.selected_college}")
+        st.markdown(f"**Duration:** {st.session_state.college_details['Duration'].values[0]}")
+        st.markdown(f"**College Fee:** {st.session_state.college_details['Fees'].values[0]}")
+        #st.markdown(f"**NIRF and Other Rank (2022):** {st.session_state.college_details['NIRF AND OTHER RANK(2022)'].values[0]}")
+        #st.markdown(f"**Minimum Marks for Eligibility:** {st.session_state.college_details['MIN MARKS FOR ELIGIBILITY'].values[0]}")
+        st.markdown(f"**Minimum Eligibility:** {st.session_state.college_details['Eligiblity Criteria'].values[0]}")
+        #st.markdown(f"**Entrance Name and Duration:** {st.session_state.college_details['ENTRANCE NAME AND DURATION'].values[0]}")
+        #st.markdown(f"**Exam Details:** {st.session_state.college_details['EXAM DETAILS'].values[0]}")
+        #st.markdown(f"**Test Date:** {st.session_state.college_details['TEST DATE'].values[0]}")
+        #st.markdown(f"**Application Process:** {st.session_state.college_details['APPLICATION PROCESS'].values[0]}")
+        #st.markdown(f"**Application Fee:** {st.session_state.college_details['APPLICATION FEE'].values[0]}")
+        #st.markdown(f"**Selection Process:** {st.session_state.college_details['Selection Process'].values[0]}")
+        #st.markdown(f"**Intake:** {st.session_state.college_details['INTAKE'].values[0]}")
+        #st.markdown(f"**Link:** {st.session_state.college_details['LINK'].values[0]}")
+        #st.markdown(f"**Scholarships for this College:** {st.session_state.college_details['Scholarships/Fellowships'].values[0]}")
+        st.markdown(f"**Selection Criteria:** {st.session_state.college_details['Selection Process'].values[0]}")
+        st.markdown(f"**Exam to Qualify:** {st.session_state.college_details['Exam'].values[0]}")
+        st.markdown(f"**Available Seats:** {st.session_state.college_details['Seats'].values[0]}")
+        st.markdown(f"**Mode of exam:** {st.session_state.college_details['Mode'].values[0]}")
+        st.warning(f"*A complete list of all relevant scholarships will be provided when you download the report (pdf) on the next page.*")
 
-    # Button to trigger the next page
     if st.button('Explore Career'):
         # Set a session state variable to indicate that the next page should be displayed
         st.session_state.next_page = True
@@ -87,7 +93,6 @@ def main():
 # Check if the next page should be displayed
 if 'next_page' in st.session_state and st.session_state.next_page:
     # Display the Job12.py page
-    import Job  # Assuming Job12.py is a separate file, adjust this import as necessary
     Job.main()
 else:
     # Display the Home.py page
