@@ -515,22 +515,12 @@ def main():
             pdf.add_scholarship_details(row["Scholarship Name"], details)
 
 # Allow PDF download
-    pdf_output = pdf.output(dest="S").encode("latin1", errors="replace")
+    pdf_output = pdf.output(dest="S").replace('\u200b', '').encode("latin1", errors="replace")
     st.download_button(
         label="Download PDF",
         data=pdf_output,
         file_name=f"{selected_field}_progress_report.pdf",
         mime="application/pdf",
     )
-
-
-
-
-        
-      
-        
-        
-               
-       
 
 
